@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X, Compass, Plane, Hotel, Sparkles, User, LogOut, ChevronDown } from "lucide-react";
+import LogoLight from "@/assets/LogoLight";
+import LogoDark from "@/assets/LogoDark";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -63,8 +65,9 @@ const Navbar = ({ onStartPlanning }: NavbarProps) => {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
-          <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isScrolled ? "bg-teal" : "bg-teal"}`}>
-            <Compass className="h-5 w-5 text-primary-foreground" />
+          <div className={`h-9 w-9 flex items-center justify-center rounded-lg`}>
+            <LogoLight className="block h-9 w-9 dark:hidden" />
+            <LogoDark className="hidden h-9 w-9 dark:block" />
           </div>
           <span className={`font-display text-xl font-bold ${isScrolled ? "text-foreground" : "text-primary-foreground"}`}>
             ZipTrip

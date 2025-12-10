@@ -1,4 +1,6 @@
-import { Compass, Instagram, Twitter, Facebook, Youtube } from "lucide-react";
+import { Instagram, Twitter, Facebook, Youtube } from "lucide-react";
+import LogoLight from "@/assets/LogoLight";
+import LogoDark from "@/assets/LogoDark";
 
 const Footer = () => {
   const links = {
@@ -21,8 +23,9 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <a href="/" className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-coral">
-                <Compass className="h-6 w-6 text-primary-foreground" />
+              <div className="h-10 w-10 flex items-center justify-center rounded-xl">
+                <LogoLight className="block h-10 w-10 dark:hidden" />
+                <LogoDark className="hidden h-10 w-10 dark:block" />
               </div>
               <span className="font-display text-xl font-bold text-foreground">
                 ZipTrip
