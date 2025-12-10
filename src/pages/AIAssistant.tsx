@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { apiAssistant } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/landing/Navbar";
 
 interface Message {
@@ -26,6 +28,7 @@ const AIAssistant = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user) {
@@ -50,16 +53,23 @@ const AIAssistant = () => {
     setInput("");
     setIsLoading(true);
 
-    // Placeholder for AI integration
-    setTimeout(() => {
+    try {
+      const { reply } = await apiAssistant.ask(userMessage.content);
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "I'd be happy to help with that! This is a placeholder response. The AI chatbot functionality will be integrated here to provide personalized travel recommendations, itinerary suggestions, and answer your travel questions.",
+        content: reply,
       };
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err?.message || "Failed to reach assistant",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleStartPlanning = () => {

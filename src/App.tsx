@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
@@ -20,6 +21,15 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          {/* Quick Clerk status header per setup guide */}
+          <div className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-lg bg-card/90 px-3 py-2 shadow">
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </div>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

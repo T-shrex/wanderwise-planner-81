@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { apiItineraries } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/landing/Navbar";
 
 interface ItineraryDay {
@@ -25,7 +27,9 @@ interface Activity {
 const SmartItinerary = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [destination, setDestination] = useState("");
+  const [itineraryId, setItineraryId] = useState<string | null>(null);
   const [itinerary, setItinerary] = useState<ItineraryDay[]>([
     {
       id: "1",
@@ -68,6 +72,27 @@ const SmartItinerary = () => {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    const loadItineraries = async () => {
+      try {
+        const items = await apiItineraries.list();
+        if (items?.length) {
+          const first = items[0];
+          setItineraryId(first._id);
+          setDestination(first.destination || "");
+          setItinerary(
+            (first.days as ItineraryDay[])?.length ? first.days : itinerary
+          );
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    if (user) {
+      void loadItineraries();
+    }
+  }, [user, navigate]);
+
   const handleStartPlanning = () => {
     navigate("/");
   };
@@ -96,6 +121,29 @@ const SmartItinerary = () => {
           : day
       )
     );
+  };
+
+  const handleSave = async () => {
+    try {
+      const payload = {
+        destination: destination || "My Trip",
+        days: itinerary,
+      };
+      if (itineraryId) {
+        const updated = await apiItineraries.update(itineraryId, payload);
+        setItineraryId(updated._id);
+      } else {
+        const created = await apiItineraries.create(payload);
+        setItineraryId(created._id);
+      }
+      toast({ title: "Saved", description: "Itinerary synced to backend." });
+    } catch (err: any) {
+      toast({
+        title: "Save failed",
+        description: err?.message || "Could not save itinerary",
+        variant: "destructive",
+      });
+    }
   };
 
   const removeActivity = (dayId: string, activityId: string) => {
@@ -145,6 +193,9 @@ const SmartItinerary = () => {
                   placeholder="Enter destination..."
                   className="w-48"
                 />
+                <Button onClick={handleSave} variant="secondary">
+                  Save
+                </Button>
                 <Button onClick={addDay} variant="teal">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Day

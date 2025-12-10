@@ -1,10 +1,10 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { createContext, useContext, ReactNode, useEffect } from "react";
+import { useAuth as useClerkAuth, useUser as useClerkUser, useClerk } from "@clerk/clerk-react";
+import { setTokenProvider } from "@/lib/api";
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  token: string | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
 }
@@ -12,34 +12,33 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { getToken, isLoaded } = useClerkAuth();
+  const { user, isSignedIn } = useClerkUser();
+  const { signOut: clerkSignOut } = useClerk();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
+    setTokenProvider(async () => {
+      try {
+        return await getToken();
+      } catch {
+        return null;
       }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
     });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  }, [getToken]);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await clerkSignOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user: isSignedIn ? user : null,
+        token: null, // token is fetched on demand via getToken
+        isLoading: !isLoaded,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

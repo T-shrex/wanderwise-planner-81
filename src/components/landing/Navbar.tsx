@@ -22,6 +22,7 @@ const Navbar = ({ onStartPlanning }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user, signOut, isLoading } = useAuth();
+  const userEmail = user?.primaryEmailAddress?.emailAddress || "";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -103,13 +104,13 @@ const Navbar = ({ onStartPlanning }: NavbarProps) => {
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-coral text-primary-foreground">
                     <User className="h-4 w-4" />
                   </div>
-                  <span className="max-w-[120px] truncate">{user.email?.split("@")[0]}</span>
+                  <span className="max-w-[120px] truncate">{userEmail.split("@")[0]}</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem className="text-muted-foreground text-xs">
-                  {user.email}
+                  {userEmail}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/ai-assistant")}>
@@ -180,7 +181,7 @@ const Navbar = ({ onStartPlanning }: NavbarProps) => {
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-coral text-primary-foreground">
                       <User className="h-4 w-4" />
                     </div>
-                    {user.email}
+                    {userEmail}
                   </div>
                   <Button variant="ghost" onClick={handleSignOut} className="justify-start text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
