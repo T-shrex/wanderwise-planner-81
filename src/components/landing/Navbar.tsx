@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, Compass, Plane, Hotel, Sparkles } from "lucide-react";
+import { Menu, X, Compass, Plane, Hotel, Sparkles, User, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavbarProps {
   onStartPlanning: () => void;
@@ -10,6 +20,8 @@ interface NavbarProps {
 const Navbar = ({ onStartPlanning }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, signOut, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,11 +32,23 @@ const Navbar = ({ onStartPlanning }: NavbarProps) => {
   }, []);
 
   const navItems = [
-    { label: "AI Assistant", icon: Sparkles },
-    { label: "Smart Itinerary", icon: Compass },
-    { label: "Flights", icon: Plane },
-    { label: "Hotels", icon: Hotel },
+    { label: "AI Assistant", icon: Sparkles, href: "/ai-assistant" },
+    { label: "Smart Itinerary", icon: Compass, href: "/smart-itinerary" },
+    { label: "Flights", icon: Plane, href: "#flights" },
+    { label: "Hotels", icon: Hotel, href: "#hotels" },
   ];
+
+  const handleNavClick = (href: string) => {
+    if (href.startsWith("/")) {
+      navigate(href);
+    }
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <motion.nav
@@ -50,42 +74,85 @@ const Navbar = ({ onStartPlanning }: NavbarProps) => {
         {/* Desktop Nav */}
         <div className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => (
-            <a
+            <button
               key={item.label}
-              href={`#${item.label.toLowerCase().replace(" ", "-")}`}
+              onClick={() => handleNavClick(item.href)}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:bg-primary-foreground/10 ${
                 isScrolled ? "text-foreground hover:text-coral" : "text-primary-foreground/90"
               }`}
             >
               <item.icon className="h-4 w-4" />
               {item.label}
-            </a>
+            </button>
           ))}
         </div>
 
         {/* Right side buttons */}
         <div className="hidden items-center gap-3 md:flex">
-          <Button
-            variant="ghost"
-            className={`${isScrolled ? "text-foreground" : "text-primary-foreground"}`}
-          >
-            Sign In
-          </Button>
-          <Button
-            variant="teal"
-            onClick={onStartPlanning}
-          >
-            Get Started
-          </Button>
+          <ThemeToggle />
+          
+          {isLoading ? (
+            <div className="h-9 w-24 animate-pulse bg-muted rounded-lg" />
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={`gap-2 ${isScrolled ? "text-foreground" : "text-primary-foreground"}`}
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-coral text-primary-foreground">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <span className="max-w-[120px] truncate">{user.email?.split("@")[0]}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem className="text-muted-foreground text-xs">
+                  {user.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/ai-assistant")}>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  AI Assistant
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/smart-itinerary")}>
+                  <Compass className="mr-2 h-4 w-4" />
+                  Smart Itinerary
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                className={`${isScrolled ? "text-foreground" : "text-primary-foreground"}`}
+                onClick={() => navigate("/auth")}
+              >
+                Sign In
+              </Button>
+              <Button variant="teal" onClick={onStartPlanning}>
+                Get Started
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className={`md:hidden ${isScrolled ? "text-foreground" : "text-primary-foreground"}`}
-        >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`${isScrolled ? "text-foreground" : "text-primary-foreground"}`}
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -97,23 +164,39 @@ const Navbar = ({ onStartPlanning }: NavbarProps) => {
         >
           <div className="flex flex-col gap-2">
             {navItems.map((item) => (
-              <a
+              <button
                 key={item.label}
-                href={`#${item.label.toLowerCase().replace(" ", "-")}`}
-                className="flex items-center gap-3 rounded-lg px-3 py-3 text-foreground hover:bg-muted hover:text-coral"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => handleNavClick(item.href)}
+                className="flex items-center gap-3 rounded-lg px-3 py-3 text-foreground hover:bg-muted hover:text-coral text-left"
               >
                 <item.icon className="h-5 w-5" />
                 {item.label}
-              </a>
+              </button>
             ))}
             <div className="mt-4 flex flex-col gap-2">
-              <Button variant="ghost" className="justify-start">
-                Sign In
-              </Button>
-              <Button variant="teal" onClick={onStartPlanning}>
-                Get Started
-              </Button>
+              {user ? (
+                <>
+                  <div className="flex items-center gap-3 px-3 py-2 text-muted-foreground text-sm">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-coral text-primary-foreground">
+                      <User className="h-4 w-4" />
+                    </div>
+                    {user.email}
+                  </div>
+                  <Button variant="ghost" onClick={handleSignOut} className="justify-start text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" className="justify-start" onClick={() => { navigate("/auth"); setIsMobileMenuOpen(false); }}>
+                    Sign In
+                  </Button>
+                  <Button variant="teal" onClick={onStartPlanning}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </motion.div>
