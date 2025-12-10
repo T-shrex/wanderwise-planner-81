@@ -25,7 +25,7 @@ const Footer = () => {
                 <Compass className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="font-display text-xl font-bold text-foreground">
-                Wanderlust
+                ZipTrip
               </span>
             </a>
             <p className="mb-6 max-w-sm text-muted-foreground">
@@ -67,7 +67,7 @@ const Footer = () => {
 
         <div className="mt-12 flex flex-col items-center justify-between border-t border-border pt-8 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © 2024 Wanderlust. All rights reserved.
+            © 2024 ZipTrip. All rights reserved.
           </p>
           <p className="mt-2 text-sm text-muted-foreground md:mt-0">
             Made with ❤️ for travelers worldwide

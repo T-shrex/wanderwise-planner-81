@@ -67,7 +67,7 @@ const Hero = ({ onStartPlanning }: HeroProps) => {
           transition={{ duration: 0.8, delay: 0.1 }}
           className="mb-6 font-display text-6xl font-bold text-primary md:text-7xl lg:text-8xl"
         >
-          Wanderlust
+          ZipTrip
         </motion.h2>
 
         <motion.p
