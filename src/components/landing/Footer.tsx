@@ -69,9 +69,7 @@ const Footer = () => {
           <p className="text-sm text-muted-foreground">
             © 2024 ZipTrip. All rights reserved.
           </p>
-          <p className="mt-2 text-sm text-muted-foreground md:mt-0">
-            Made with ❤️ for travelers worldwide
-          </p>
+          
         </div>
       </div>
     </footer>

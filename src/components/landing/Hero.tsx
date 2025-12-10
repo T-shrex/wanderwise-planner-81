@@ -54,11 +54,8 @@ const Hero = ({ onStartPlanning }: HeroProps) => {
           className="mb-4 text-center"
         >
           <h1 className="font-display text-4xl font-bold leading-tight text-muted-foreground/70 md:text-5xl lg:text-6xl">
-            Discover your next
+            Discover Your Next Horizon
           </h1>
-          <h2 className="font-display text-4xl font-bold leading-tight text-muted-foreground/70 md:text-5xl lg:text-6xl">
-            Horizon
-          </h2>
         </motion.div>
 
         <motion.h2
